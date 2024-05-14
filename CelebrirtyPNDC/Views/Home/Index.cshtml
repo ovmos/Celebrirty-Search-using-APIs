@@ -1,0 +1,68 @@
+﻿@{
+    ViewBag.Title = "Celebrity Details";
+}
+
+<h2>Celebrity Details</h2>
+
+<div>
+    <form id="celebrityForm">
+        <label for="celebrityName">Enter Celebrity Name:</label>
+        <input type="text" id="celebrityName" name="celebrityName" required />
+        <button type="submit">Get Details</button>
+    </form>
+
+    <div id="celebrityDetailsContainer" style="margin-top: 20px; display: none;">
+        <h3 id="celebrityNameDisplay"></h3>
+        <p><strong>Net Worth:</strong> <span id="netWorthDisplay"></span></p>
+        <p><strong>Gender:</strong> <span id="genderDisplay"></span></p>
+        <p><strong>Nationality:</strong> <span id="nationalityDisplay"></span></p>
+        <p><strong>Occupations:</strong> <span id="occupationsDisplay"></span></p>
+        <p><strong>Height:</strong> <span id="heightDisplay"></span> meters</p>
+        <p><strong>Birthday:</strong> <span id="birthdayDisplay"></span></p>
+    </div>
+
+    <div id="errorContainer" style="margin-top: 20px; display: none;">
+        <p id="errorMessage"></p>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#celebrityForm').submit(function (event) {
+                event.preventDefault();
+
+                var celebrityName = $('#celebrityName').val();
+
+                $.ajax({
+                    url: '@Url.Action("GetCelebrityDetails", "Home")',
+                    type: 'POST',
+                    data: { celebrityName: celebrityName },
+                    success: function (data) {
+                        if (data.success) {
+                            $('#celebrityNameDisplay').text(data.name);
+                            $('#netWorthDisplay').text('$' + data.netWorth);
+                            $('#genderDisplay').text(data.gender);
+                            $('#nationalityDisplay').text(data.nationality);
+                            $('#occupationsDisplay').text(data.occupations.join(', '));
+                            $('#heightDisplay').text(data.height);
+                            $('#birthdayDisplay').text(data.birthday);
+
+                            $('#celebrityDetailsContainer').show();
+                            $('#errorContainer').hide();
+                        } else {
+                            $('#errorMessage').text(data.message);
+                            $('#errorContainer').show();
+                            $('#celebrityDetailsContainer').hide();
+                        }
+                    },
+                    error: function () {
+                        $('#errorMessage').text('An error occurred, please try again later.');
+                        $('#errorContainer').show();
+                        $('#celebrityDetailsContainer').hide();
+                    }
+                });
+            });
+        });
+    </script>
+}
